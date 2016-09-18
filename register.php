@@ -5,6 +5,8 @@ require_once 'src/init.php';
 require_once 'src/User.php';
 require_once 'src/Tweet.php';
 
+$info = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['username']) &&
@@ -17,14 +19,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = $_POST['email'];
         $password1 = $_POST['password1'];
         $password2 = $_POST['password2'];
+        
+        if($username == "" ||
+           $email == "" ||
+           $password1 == "" ||
+           $password2 == "") {
+            
+            $info = "Uzupełnij wszystkie pola";
+            
+        } elseif (User::loadUserByEmail($conn, $email) != null) {
 
-        if (User::loadUserByEmail($conn, $email) != null) {
-
-            echo "Ten e-mail jest już zajęty.";
+            $info = "Ten e-mail jest już zajęty.";
             
         } elseif ($_POST['password1'] != $_POST['password2']) {
 
-            echo "Hasła się nie zgadzają.";
+            $info = "Hasła się nie zgadzają.";
             
         } else {
 
@@ -36,14 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $newUser->saveToDB($conn);
             
             if($result) {
-                echo "Dodano do bazy użytkownika <strong>" . $newUser->getUsername() . "</strong>";
+                $info = "Dodano do bazy użytkownika <strong>" . $newUser->getUsername() . "</strong>";
             }
             
             
             
         }
-    } else {
-        echo "Brakujące dane.";
     }
 }
 ?>
@@ -52,64 +59,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="pl-PL">
     <head>
         <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="css/style.css"
               <title></title>
     </head>
     <body>
+        
+        <nav class="nav navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse" id="menu">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="#">Załóż konto</a></li>
+                        <li><a href="login.php">Zaloguj</a></li>
+                    </ul>                    
+                </div>       
+            </div>
+        </nav>
+        <br>
+        
 
-        <table>
-
-            <form action="#" method="POST">
-                <tr>
-                    <td colspan="3">
-                        <h3>Tworzenie nowego konta</h3>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Nazwa użytkownika:
-                    </td>
-                    <td colspan="2">
-
-                        <input class="login" type="text" name="username">
-
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        E-mail:
-                    </td>
-                    <td colspan="2">
-
-                        <input class="login" type="text" name="email">
-
-                    </td>
-                </tr>
-                <tr>
-                    <td>Hasło:</td>
-                    <td colspan="2">
-
-                        <input class="login" type="password" name="password1">
-                    </td>
-                </tr>
-                <tr>
-                    <td>Powtórz hasło:</td>
-                    <td colspan="2">
-
-                        <input class="login" type="password" name="password2">
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3">
-
-                        <input class="tableButton" type="submit" value="Załóż konto">
-                    </td>
-                </tr>
-            </form>
-            <tr>
-                <td colspan="3"><a href="login.php">Wróć do ekranu logowania</a></td>
-            </tr>
-        </table>
+        <div class="container col-md-6 col-md-offset-3 col-sm-12">
+            <div class="panel panel-info">
+                <form action="#" method="POST">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="control-label" for="username">Nazwa użytkownika:</label>
+                            <input class="form-control" type="text" name="username" id="username">                    
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="email">E-mail:</label>
+                            <input class="form-control" type="text" name="email" id="email">                    
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="pass1">Hasło:</label>
+                            <input class="form-control" type="password" name="password1" id="pass1">                    
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="pass2">Powtórz hasło:</label>
+                            <input class="form-control" type="password" name="password2" id="pass2">                    
+                        </div>
+                    </div>
+                    <div class="panel-footer clearfix">
+                        <?php echo $info; ?>
+                        <input class="btn btn-primary pull-right" type="submit" value="Załóż konto">
+                    </div>
+                </form>
+            </div>
+        </div>
 
 
 

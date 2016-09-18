@@ -15,10 +15,7 @@ if(!isset($_SESSION['loggedUserId'])) {
     $loggedUserId = $_SESSION['loggedUserId'];
     
     $loggedUser = User::loadUserById($conn, $loggedUserId);
-    
-    echo "Zalogowano jako <strong>" .  $loggedUser->getUsername() . "</strong><br>";
-    echo "<a href='logout.php'>Wyloguj</a><br>";
-    
+
 }
 
 if($_SERVER['REQUEST_METHOD'] === 'GET' &&
@@ -42,70 +39,95 @@ if($_SERVER['REQUEST_METHOD'] === 'GET' &&
 <html lang="pl-PL">
     <head>
         <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="css/style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
               <title></title>
     </head>
     <body>
           
-            <a href="main.php">Wróć do strony głównej</a>
-        <table>
-
-<!--            <form action="#" method="POST">
-                <tr>
-                    <td colspan="2">
-                        <input class="tweetText" type="textarea" name="text">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="tableButton" colspan="2">
-                        <input class="tableButton" type="submit" value="Dodaj nowy tweet">
-                    </td>
-                </tr>
-                <tr><td class='border'></td></tr>
-
-            </form>-->
+        <nav class="nav navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse" id="menu">
+                    <ul class="nav navbar-nav">
+                        <li><a href="main.php"><span class="glyphicon glyphicon-home"></span></a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="messages.php?id=<?php echo $loggedUserId; ?>"><span class="glyphicon glyphicon-envelope"></span></a></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <span class="glyphicon glyphicon-user"></span> <?php echo $loggedUser->getUsername(); ?>
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="editUser.php?id=<?php $loggedUserId; ?>">
+                                        <span class="glyphicon glyphicon-pencil"></span> Edytuj profil
+                                    </a>
+                                </li>
+                                <li><a href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Wyloguj</a></li>
+                            </ul>
+                        </li>
+                    </ul>                    
+                </div>       
+            </div>
+        </nav>
+        <br>
+        
+        <div class="container col-md-6 col-md-offset-3 col-sm-12">
+            
             <?php
             
-            echo "<tr>";
-            echo "<td class='border'>
-                    <span class='username'>$username</span>
-                </td>";
+            echo "<div class='jumbotron'>
+                    <h2>$username</h2>";
             
             if($userId != $loggedUserId) {
                 
-                echo "<td class='border'>
-                        <a href='sendMessage.php?id=$userId'>
-                            <button class='tableButton' type='button'>Wyślij wiadomość</button>
-                        </a>
-                    </td>";
+                echo "<a href='sendMessage.php?id=$userId'>
+                            <button class='btn btn-primary' type='button'>Wyślij wiadomość</button>
+                        </a>";
                 
             }
                             
-            echo "</tr>";
+            echo "</div>";
             
-            foreach ($allUserTweets as $tweet) {
-
-                $tweetId = $tweet->getId();
-                $creationDate = $tweet->getCreationDate();
-                $text = $tweet->getText();
-                $commentsNo = count(Comment::loadAllCommentsByTweetId($conn, $tweetId));
-                
-                
-                echo "<tr class='tweetInfo'>
-                    <td><a href='userInfo.php?id=$userId'>$username</a></td>
-                    <td><a href='tweetInfo.php?id=$tweetId'>$creationDate</a></td>
-                    </tr>";
-                echo "<tr class='tweetText'>
-                    <td colspan='2'>$text</td>
-                    </tr>";
-                echo "<tr class='tweetInfo'>
-                    <td colspan='2'>Komentarze: <a href='tweetInfo.php?id=$tweetId#comments'>$commentsNo</a></td>
-                    </tr>";
-                echo "<tr><td class='border'></td></tr>";
-
-            }
             ?>
-        </table>
+            
+            <div class="panel-group">
+            
+                <?php
+
+                foreach ($allUserTweets as $tweet) {
+
+                    $tweetId = $tweet->getId();
+                    $creationDate = $tweet->getCreationDate();
+                    $text = $tweet->getText();
+                    $commentsNo = count(Comment::loadAllCommentsByTweetId($conn, $tweetId));
+
+
+                    echo "<div class='panel panel-default'>
+                            <div class='panel-heading'>
+                                <a href='userInfo.php?id=$userId'>$username</a>
+                                <a href='tweetInfo.php?id=$tweetId' class='pull-right'>$creationDate</a>
+                            </div>
+                            <div class='panel-body'>
+                                $text
+                            </div>
+                            <div class='panel-footer'>
+                                Komentarze: <a href='tweetInfo.php?id=$tweetId#comments'>$commentsNo</a>
+                            </div>
+                        </div>";
+                }
+                ?>
+            </div>
+        </div>
 
     </body>
 </html>

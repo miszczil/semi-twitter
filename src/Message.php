@@ -34,10 +34,6 @@ class Message {
         $this->text = $newText;
     }
 
-    public function readMessage() {
-        $this->read = 1;
-    }
-
     public function getId() {
         return $this->id;
     }
@@ -74,10 +70,23 @@ class Message {
             if ($result) {
                 $this->id = $connection->insert_id;
                 return true;
+            } else {
+                return false;
             }
         }
+    }
 
-        return false;
+    public function readMessage(mysqli $connection) {
+        $this->read = 1;
+        $sql = "UPDATE Message SET `read`=$this->read
+                    WHERE id=$this->id";
+
+        $result = $connection->query($sql);
+        if($result) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     static public function loadMessageById(mysqli $connection, $id) {
@@ -96,7 +105,7 @@ class Message {
             $loadedMessage->creationDate = $row['creation_date'];
             $loadedMessage->text = $row['text'];
             $loadedMessage->read = $row['read'];
-            
+
 
             return $loadedMessage;
         }
@@ -121,7 +130,7 @@ class Message {
                 $loadedMessage->senderId = $row['sender_id'];
                 $loadedMessage->receiverId = $row['receiver_id'];
                 $loadedMessage->creationDate = $row['creation_date'];
-                $loadedMessage->text = substr($row['text'], 0, 30) . '...';
+                $loadedMessage->text = substr($row['text'], 0, 30) . ' ...';
                 $loadedMessage->read = $row['read'];
 
                 $ret[] = $loadedMessage;
@@ -130,7 +139,7 @@ class Message {
 
         return $ret;
     }
-    
+
     static public function loadAllMessagesByReceiverId(mysqli $connection, $receiverId) {
 
         $sql = "SELECT * FROM Message
@@ -159,6 +168,5 @@ class Message {
 
         return $ret;
     }
-
 
 }
